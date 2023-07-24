@@ -8,5 +8,5 @@
 ![](assets/no-storyboard.png)
 
 ## Custom Gif Launch
-![](assets/speedrun.gif)
+![](https://media.tenor.com/0CXQArozOAEAAAAd/sweaty-speedruner.gif)
 
