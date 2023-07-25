@@ -7,7 +7,8 @@
 ![](assets/multipage.png)
 
 ## Cached
-![](assets/cache)
+Reload table rows when image downloaded
+![](assets/cache.png)
 
 ## No storyboards
 ![](assets/no-storyboard.png)
