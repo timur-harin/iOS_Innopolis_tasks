@@ -4,12 +4,11 @@ protocol NetworkManagerProtocol {
     func fetchCharacters(
         completion: @escaping (Result<CharacterResponseModel, Error>
         ) -> Void)
-    
+
     func pageFetchCharacters(
         page: Int,
         completion: @escaping (Result<CharacterResponseModel, Error>
         ) -> Void)
-    
 }
 
 final class NetworkManger: NetworkManagerProtocol {
@@ -21,7 +20,7 @@ final class NetworkManger: NetworkManagerProtocol {
     {
         request(target: .getCharacters, completion: completion)
     }
-    
+
     func pageFetchCharacters(
         page: Int,
         completion: @escaping (Result<CharacterResponseModel, Error>

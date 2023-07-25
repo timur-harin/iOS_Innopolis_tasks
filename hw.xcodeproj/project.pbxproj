@@ -12,6 +12,8 @@
 		396488842A6ECBA1008B4CC4 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 396488832A6ECBA1008B4CC4 /* NetworkManager.swift */; };
 		396488862A6F170D008B4CC4 /* ResponseModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 396488852A6F170D008B4CC4 /* ResponseModel.swift */; };
 		3964888C2A6F6F14008B4CC4 /* ImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3964888B2A6F6F14008B4CC4 /* ImageExtension.swift */; };
+		396488FA2A6FC54F008B4CC4 /* CharacterCore.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 396488F82A6FC54E008B4CC4 /* CharacterCore.xcdatamodeld */; };
+		3964890E2A6FD139008B4CC4 /* CoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3964890D2A6FD139008B4CC4 /* CoreDataStack.swift */; };
 		3976210D2A6E484C001420D9 /* Gif.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3976210C2A6E484C001420D9 /* Gif.swift */; };
 		3976210F2A6E4EB1001420D9 /* CharacterDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3976210E2A6E4EB1001420D9 /* CharacterDetailViewController.swift */; };
 		397621112A6E4F12001420D9 /* Character.swift in Sources */ = {isa = PBXBuildFile; fileRef = 397621102A6E4F12001420D9 /* Character.swift */; };
@@ -30,6 +32,10 @@
 		396488832A6ECBA1008B4CC4 /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		396488852A6F170D008B4CC4 /* ResponseModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponseModel.swift; sourceTree = "<group>"; };
 		3964888B2A6F6F14008B4CC4 /* ImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageExtension.swift; sourceTree = "<group>"; };
+		396488F92A6FC54E008B4CC4 /* CharacterModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CharacterModel.xcdatamodel; sourceTree = "<group>"; };
+		396489052A6FCC3F008B4CC4 /* CharacterCore+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CharacterCore+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
+		396489062A6FCC3F008B4CC4 /* CharacterCore+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CharacterCore+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
+		3964890D2A6FD139008B4CC4 /* CoreDataStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataStack.swift; sourceTree = "<group>"; };
 		3976210C2A6E484C001420D9 /* Gif.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gif.swift; sourceTree = "<group>"; };
 		3976210E2A6E4EB1001420D9 /* CharacterDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterDetailViewController.swift; sourceTree = "<group>"; };
 		397621102A6E4F12001420D9 /* Character.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Character.swift; sourceTree = "<group>"; };
@@ -112,6 +118,17 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
+		396489002A6FC905008B4CC4 /* CoreData */ = {
+			isa = PBXGroup;
+			children = (
+				396489052A6FCC3F008B4CC4 /* CharacterCore+CoreDataClass.swift */,
+				396489062A6FCC3F008B4CC4 /* CharacterCore+CoreDataProperties.swift */,
+				396488F82A6FC54E008B4CC4 /* CharacterCore.xcdatamodeld */,
+				3964890D2A6FD139008B4CC4 /* CoreDataStack.swift */,
+			);
+			path = CoreData;
+			sourceTree = "<group>";
+		};
 		3992CDE32A6E31DC001C3F8C = {
 			isa = PBXGroup;
 			children = (
@@ -133,6 +150,7 @@
 		3992CDEE2A6E31DD001C3F8C /* hw */ = {
 			isa = PBXGroup;
 			children = (
+				396489002A6FC905008B4CC4 /* CoreData */,
 				3964888D2A6F768D008B4CC4 /* Extensions */,
 				396488872A6F1B09008B4CC4 /* Views */,
 				396488892A6F1B5C008B4CC4 /* Services */,
@@ -276,9 +294,11 @@
 				396488842A6ECBA1008B4CC4 /* NetworkManager.swift in Sources */,
 				396488822A6ECB59008B4CC4 /* API.swift in Sources */,
 				397621132A6E4F3A001420D9 /* CharacterListViewController.swift in Sources */,
+				3964890E2A6FD139008B4CC4 /* CoreDataStack.swift in Sources */,
 				3964888C2A6F6F14008B4CC4 /* ImageExtension.swift in Sources */,
 				397621152A6E4F5F001420D9 /* CharacterTableViewController.swift in Sources */,
 				3976210D2A6E484C001420D9 /* Gif.swift in Sources */,
+				396488FA2A6FC54F008B4CC4 /* CharacterCore.xcdatamodeld in Sources */,
 				396488862A6F170D008B4CC4 /* ResponseModel.swift in Sources */,
 				3992CDF22A6E31DD001C3F8C /* SceneDelegate.swift in Sources */,
 			);
@@ -481,6 +501,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		396488F82A6FC54E008B4CC4 /* CharacterCore.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				396488F92A6FC54E008B4CC4 /* CharacterModel.xcdatamodel */,
+			);
+			currentVersion = 396488F92A6FC54E008B4CC4 /* CharacterModel.xcdatamodel */;
+			path = CharacterCore.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 3992CDE42A6E31DC001C3F8C /* Project object */;
 }

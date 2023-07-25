@@ -1,3 +1,4 @@
+import CoreData
 import UIKit
 
 class CharacterListViewController: UIViewController {
@@ -6,17 +7,58 @@ class CharacterListViewController: UIViewController {
     private var characters: [Character] = []
 
     private var manager: NetworkManger = .init()
-    
+
     var page = 1
-    
+
     var previousPage: String? = nil
-    
+
     var nextPage: String? = nil
 
+    var managedObjectContext: NSManagedObjectContext!
+
+    func saveCharactersToCoreData() {
+        for character in characters {
+            let entity = NSEntityDescription.entity(forEntityName: "", in: managedObjectContext)!
+            let characterObject = NSManagedObject(entity: entity, insertInto: managedObjectContext)
+            characterObject.setValue(character.id, forKey: "id")
+            characterObject.setValue(character.name, forKey: "name")
+            characterObject.setValue(character.status.rawValue, forKey: "status")
+            characterObject.setValue(character.species, forKey: "species")
+            characterObject.setValue(character.gender.rawValue, forKey: "gender")
+            characterObject.setValue(character.location, forKey: "location")
+            characterObject.setValue(character.image, forKey: "image")
+        }
+
+        do {
+            try managedObjectContext.save()
+        } catch {
+            print("Error saving characters to Core Data: \(error)")
+        }
+    }
+
+    func fetchCharactersFromCoreData() -> [Character] {
+        let fetchRequest: NSFetchRequest<CharacterCore> = CharacterCore.fetchRequest()
+        do {
+            let fetchedCharacters = try managedObjectContext.fetch(fetchRequest)
+            return fetchedCharacters.compactMap { characterObject in
+                Character(
+                    id: Int(characterObject.id),
+                    name: characterObject.name ?? "",
+                    status: Character.Status(rawValue: characterObject.status ?? "") ?? .unknown,
+                    species: characterObject.species ?? "",
+                    gender: Character.Gender(rawValue: characterObject.gender ?? "") ?? .unknown,
+                    location: characterObject.location ?? "",
+                    image: characterObject.image ?? "")
+            }
+        } catch {
+            print("Error fetching characters from Core Data: \(error)")
+            return []
+        }
+    }
 
     func mappingCharacter(_ response: CharacterResponseModel) -> [Character] {
         var results: [Character] = .init()
-        
+
         previousPage = response.info.prev?.description
         nextPage = response.info.next?.description
 
@@ -53,21 +95,30 @@ class CharacterListViewController: UIViewController {
     }
 
     func loadCharacters() {
-        manager.fetchCharacters { result in
-            switch result {
-            case let .success(responce):
-                self.characters = self.mappingCharacter(responce)
-                self.tableView.reloadData()
-            case .failure:
-                print("Error")
-                return
+        characters = fetchCharactersFromCoreData()
+
+        if characters.isEmpty {
+            manager.fetchCharacters { result in
+                switch result {
+                case let .success(responce):
+                    self.characters = self.mappingCharacter(responce)
+                    self.tableView.reloadData()
+                case .failure:
+                    print("Error")
+                    return
+                }
             }
+        } else {
+            tableView.reloadData()
         }
     }
-    
+
     private func setupUI() {
+        let coreDataStack = CoreDataStack.shared
+        managedObjectContext = coreDataStack.context
+
         setupTableView()
-        
+
         view.backgroundColor = .white
         view.addSubview(nextButton)
         view.addSubview(previousButton)
@@ -84,7 +135,6 @@ class CharacterListViewController: UIViewController {
             previousButton.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 20),
             previousButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20)
         ])
-        
     }
 
     private let nextButton: UIButton = {
@@ -98,29 +148,26 @@ class CharacterListViewController: UIViewController {
         button.setTitle("Previous", for: .normal)
         return button
     }()
-    
+
     @objc func nextButtonTapped() {
-        print("tapped")
-        manager.pageFetchCharacters(page: page+1) { result in
+        manager.pageFetchCharacters(page: page) { result in
             switch result {
             case let .success(responce):
-                self.page+=1
+                self.page += 1
                 self.characters = self.mappingCharacter(responce)
-                print(self.characters.count)
                 self.tableView.reloadData()
             case .failure:
                 print("Error")
                 return
             }
         }
-    
     }
 
     @objc func previousButtonTapped() {
-        manager.pageFetchCharacters(page: page-1) { result in
+        manager.pageFetchCharacters(page: page - 1) { result in
             switch result {
             case let .success(responce):
-                self.page-=1
+                self.page -= 1
                 self.characters = self.mappingCharacter(responce)
                 self.tableView.reloadData()
             case .failure:
@@ -128,12 +175,7 @@ class CharacterListViewController: UIViewController {
                 return
             }
         }
-    
     }
-
-
-
-  
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -156,7 +198,6 @@ class CharacterListViewController: UIViewController {
         tableView.bottomAnchor.constraint(
             equalTo: view.bottomAnchor,
             constant: -(nextButton.frame.height + 80)).isActive = true
-    
     }
 }
 

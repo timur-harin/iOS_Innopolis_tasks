@@ -1,35 +1,70 @@
+import CoreData
 import UIKit
 
-let imageCache = NSCache<NSString, UIImage>()
-
 extension UIImageView {
-    func load(url: URL, mode: ContentMode, tableView: UITableView, indexPath: IndexPath,  completion: (() -> Void)? = nil) {
-        if let cachedImage = imageCache.object(forKey: url.absoluteString as NSString) {
-           self.image = cachedImage
-           self.contentMode = mode
-           completion?()
-           tableView.reloadRows(at: [indexPath], with: .none) // Reload table data
-           return
-       }
+    func load(characterID: Int, mode: ContentMode, tableView: UITableView, indexPath: IndexPath, completion: (() -> Void)? = nil) {
+        if let cachedImage = fetchImageFromCoreData(characterID: characterID) {
+            self.image = cachedImage
+            self.contentMode = mode
+            completion?()
+            tableView.reloadRows(at: [indexPath], with: .none)
+            return
+        }
 
-       // If not in cache, download the image
-       URLSession.shared.dataTask(with: url) { [weak self] (data, _, _) in
-           guard let data = data, let downloadedImage = UIImage(data: data) else { return }
+        let imageUrlString = "https://rickandmortyapi.com/api/character/avatar/\(characterID).jpeg"
 
-           // Store the downloaded image in cache
-           imageCache.setObject(downloadedImage, forKey: url.absoluteString as NSString)
+        guard let url = URL(string: imageUrlString) else { return }
 
-           DispatchQueue.main.async {
-               self?.image = downloadedImage
-               self?.contentMode = mode
-               completion?() // Call completion handler if provided
-               tableView.reloadRows(at: [indexPath], with: .none) // Reload table data
-           }
-       }.resume()
-   }
+        URLSession.shared.dataTask(with: url) { [weak self] data, _, _ in
+            guard let data = data, let downloadedImage = UIImage(data: data) else { return }
 
-    func download(link: String, contentMode: ContentMode = .scaleAspectFit, tableView: UITableView, indexPath: IndexPath) {
-        guard let url = URL(string: link) else { return }
-        self.load(url: url, mode: contentMode, tableView: tableView, indexPath: indexPath)
+            self?.saveImageToCoreData(characterID: characterID, image: downloadedImage)
+
+            DispatchQueue.main.async {
+                self?.image = downloadedImage
+                self?.contentMode = mode
+                completion?()
+                tableView.reloadRows(at: [indexPath], with: .none)
+            }
+        }.resume()
+    }
+
+    private func fetchImageFromCoreData(characterID: Int) -> UIImage? {
+        let fetchRequest: NSFetchRequest<CharacterCore> = CharacterCore.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %d", characterID)
+
+        do {
+            let context = CoreDataStack.shared.context
+            let fetchedCharacters = try context.fetch(fetchRequest)
+            if let characterObject = fetchedCharacters.first, let imageData = characterObject.image {
+                if let data = Data(base64Encoded: imageData) {
+                    return UIImage(data: data)
+                } else {
+                    return nil
+                }
+            }
+        } catch {
+            print("Error fetching image from Core Data: \(error)")
+        }
+
+        return nil
+    }
+
+    private func saveImageToCoreData(characterID: Int, image: UIImage) {
+        if let imageDataString = image.pngData()?.base64EncodedString() {
+            let context = CoreDataStack.shared.context
+
+            if let entity = NSEntityDescription.entity(forEntityName: "CharacterCore", in: context) {
+                let characterObject = NSManagedObject(entity: entity, insertInto: context)
+                characterObject.setValue(characterID, forKey: "id")
+                characterObject.setValue(imageDataString, forKey: "image")
+
+                do {
+                    try context.save()
+                } catch {
+                    print("Error saving image to Core Data: \(error)")
+                }
+            }
+        }
     }
 }

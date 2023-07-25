@@ -40,6 +40,7 @@ extension API: TargetType {
     }
 
     var headers: [String: String]? {
-        return ["Content-type": "application/json"]
+        return ["Content-type": "application/json", "Cache-Control": "no-cache"]
+        
     }
 }
