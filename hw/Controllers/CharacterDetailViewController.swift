@@ -1,4 +1,5 @@
 import UIKit
+import CoreData
 
 protocol CharacterDetailDelegate: AnyObject {
     func characterDetailViewControllerDidUpdateCharacter(_ character: Character)
@@ -6,6 +7,8 @@ protocol CharacterDetailDelegate: AnyObject {
 
 class CharacterDetailViewController: UIViewController {
     weak var delegate: CharacterDetailDelegate?
+    
+    private var coreDataService: CoreDataService!
 
     private var character: Character
 
@@ -66,6 +69,7 @@ class CharacterDetailViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        coreDataService = .init(delegate: self)
         setupUI()
     }
 
@@ -77,7 +81,7 @@ class CharacterDetailViewController: UIViewController {
 
         view.addSubview(imageView)
         imageView.download(from: character.image, contentMode: .scaleAspectFit)
-        
+
         NSLayoutConstraint.activate([
             imageView.topAnchor.constraint(equalTo: view.topAnchor, constant: padding),
             imageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
@@ -164,10 +168,12 @@ extension CharacterDetailViewController: UITableViewDataSource, UITableViewDeleg
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         saveChanges()
+        tableView.reloadData()
     }
 
     private func saveChanges() {
         delegate?.characterDetailViewControllerDidUpdateCharacter(character)
+        self.coreDataService?.updateCharacter(character)
     }
 }
 
@@ -232,28 +238,9 @@ extension Character.Status: CustomStringConvertible {
     }
 }
 
-class CharacterDetailTableViewCell: UITableViewCell {
-    var textField: UITextField = {
-        let textField = UITextField()
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        return textField
-    }()
 
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        setupUI()
-    }
-
-    @available(*, unavailable)
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    private func setupUI() {
-        contentView.addSubview(textField)
-        textField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 120).isActive = true
-        textField.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10).isActive = true
-        textField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20).isActive = true
-        textField.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10).isActive = true
+extension CharacterDetailViewController: NSFetchedResultsControllerDelegate {
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        tableView.reloadData()
     }
 }

@@ -9,20 +9,26 @@ class CharacterListViewController: UIViewController {
     var previousPage: String? = nil
     var nextPage: String? = nil
 
+    lazy var characterListView: CharacterListView = {
+        let view = CharacterListView(frame: .zero)
+        view.delegate = self
+        view.dataSource = self
+        view.delegateButtons = self
+        return view
+    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Rick and Morty Characters"
-        tableView.delegate = self
-        tableView.dataSource = self
+
         setupUI()
- 
+
         coreDataService = .init(delegate: self)
-                
+
         DispatchQueue.global().async { [weak self] in
             self?.loadCharacters()
             DispatchQueue.main.async { [weak self] in
-                self?.reloadData()
+                self?.characterListView.reloadData()
             }
         }
         do {
@@ -30,72 +36,34 @@ class CharacterListViewController: UIViewController {
         } catch {
             print(error)
         }
-        reloadData()
+        characterListView.reloadData()
     }
-    
-    private func reloadData(){
-        tableView.reloadData()
-    }
-    
+
     private func setupUI() {
-        setupTableView()
-        setupButtonsView()
-    }
-
-    
-    private func setupButtonsView(){
-        view.backgroundColor = .white
-        view.addSubview(nextButton)
-        view.addSubview(previousButton)
-
-        nextButton.translatesAutoresizingMaskIntoConstraints = false
-        nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
-        previousButton.addTarget(self, action: #selector(previousButtonTapped), for: .touchUpInside)
-
-        previousButton.translatesAutoresizingMaskIntoConstraints = false
-
-        NSLayoutConstraint.activate([
-            nextButton.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 20),
-            nextButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            previousButton.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 20),
-            previousButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20)
-        ])
-
-    }
-
-    private func setupTableView() {
-        tableView.register(CharacterTableViewCell.self, forCellReuseIdentifier: CharacterTableViewCell.reuseIdentifier)
-
-        view.addSubview(tableView)
-
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
-        tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-        tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-        tableView.bottomAnchor.constraint(
-            equalTo: view.bottomAnchor,
-            constant: -(nextButton.frame.height + 80)).isActive = true
+        view.addSubview(characterListView)
+        characterListView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate(staticConstraints())
     }
     
-    private let nextButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Next", for: .normal)
-        return button
-    }()
+    
 
-    private let previousButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Previous", for: .normal)
-        return button
-    }()
+    private func staticConstraints() -> [NSLayoutConstraint] {
+        return [
+            characterListView.topAnchor.constraint(equalTo: view.topAnchor),
+            characterListView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            characterListView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            characterListView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ]
+    }
+}
 
-    @objc func nextButtonTapped() {
+extension CharacterListViewController: CharacterListViewDelegate {
+    func nextButtonTapped() {
         manager.pageFetchCharacters(page: page) { result in
             switch result {
             case let .success(responce):
                 self.page += 1
-//                self.characters = self.mappingCharacter(responce)
-                self.tableView.reloadData()
+                self.characterListView.reloadData()
             case .failure:
                 print("Error")
                 return
@@ -103,13 +71,12 @@ class CharacterListViewController: UIViewController {
         }
     }
 
-    @objc func previousButtonTapped() {
+    func previousButtonTapped() {
         manager.pageFetchCharacters(page: page - 1) { result in
             switch result {
             case let .success(responce):
                 self.page -= 1
-//                self.characters = self.mappingCharacter(responce)
-                self.tableView.reloadData()
+                self.characterListView.reloadData()
             case .failure:
                 print("Error")
                 return
@@ -142,18 +109,18 @@ extension CharacterListViewController: UITableViewDataSource, UITableViewDelegat
 
 extension CharacterListViewController: CharacterDetailDelegate {
     func characterDetailViewControllerDidUpdateCharacter(_ character: Character) {
-        coreDataService.updateCharacter(character)
+          coreDataService.updateCharacter(character)
+        characterListView.reloadData()
     }
 }
 
 extension CharacterListViewController: NSFetchedResultsControllerDelegate {
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        tableView.reloadData()
+        characterListView.reloadData()
     }
 }
 
-
-extension CharacterListViewController{
+extension CharacterListViewController {
     func mappingCharacter(_ response: CharacterResponseModel) -> [Character] {
         var results: [Character] = .init()
 
@@ -204,3 +171,4 @@ extension CharacterListViewController{
         }
     }
 }
+
