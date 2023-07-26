@@ -15,6 +15,9 @@ class CharacterTableViewCell: UITableViewCell {
     func configure(with character: Character, tableView: UITableView, indexPath: IndexPath) {
         textLabel?.text = character.name
         detailTextLabel?.text = "Status: \(character.status)"
-        imageView?.load(characterID: character.id, mode: .scaleAspectFit, tableView: tableView, indexPath: indexPath)
+        DispatchQueue.main.async {
+            self.imageView?.download(from: character.image, contentMode: .scaleAspectFit)
+            self.setNeedsLayout()
+        }
     }
 }

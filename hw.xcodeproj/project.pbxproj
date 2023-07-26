@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		39605E0D2A70673600A8C47B /* PersistentContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39605E0C2A70673600A8C47B /* PersistentContainer.swift */; };
 		3964887E2A6EC7F6008B4CC4 /* speedrun.gif in Resources */ = {isa = PBXBuildFile; fileRef = 3964887D2A6EC7F6008B4CC4 /* speedrun.gif */; };
 		396488822A6ECB59008B4CC4 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 396488812A6ECB59008B4CC4 /* API.swift */; };
 		396488842A6ECBA1008B4CC4 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 396488832A6ECBA1008B4CC4 /* NetworkManager.swift */; };
@@ -27,6 +28,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		39605E0C2A70673600A8C47B /* PersistentContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistentContainer.swift; sourceTree = "<group>"; };
 		3964887D2A6EC7F6008B4CC4 /* speedrun.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = speedrun.gif; path = assets/speedrun.gif; sourceTree = SOURCE_ROOT; };
 		396488812A6ECB59008B4CC4 /* API.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
 		396488832A6ECBA1008B4CC4 /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
@@ -125,6 +127,7 @@
 				396489062A6FCC3F008B4CC4 /* CharacterCore+CoreDataProperties.swift */,
 				396488F82A6FC54E008B4CC4 /* CharacterCore.xcdatamodeld */,
 				3964890D2A6FD139008B4CC4 /* CoreDataStack.swift */,
+				39605E0C2A70673600A8C47B /* PersistentContainer.swift */,
 			);
 			path = CoreData;
 			sourceTree = "<group>";
@@ -289,6 +292,7 @@
 			files = (
 				3992CDF42A6E31DD001C3F8C /* LaunchViewController.swift in Sources */,
 				3976210F2A6E4EB1001420D9 /* CharacterDetailViewController.swift in Sources */,
+				39605E0D2A70673600A8C47B /* PersistentContainer.swift in Sources */,
 				3992CDF02A6E31DD001C3F8C /* AppDelegate.swift in Sources */,
 				397621112A6E4F12001420D9 /* Character.swift in Sources */,
 				396488842A6ECBA1008B4CC4 /* NetworkManager.swift in Sources */,

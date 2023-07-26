@@ -1,70 +1,58 @@
-import CoreData
 import UIKit
 
+
 extension UIImageView {
-    func load(characterID: Int, mode: ContentMode, tableView: UITableView, indexPath: IndexPath, completion: (() -> Void)? = nil) {
-        if let cachedImage = fetchImageFromCoreData(characterID: characterID) {
-            self.image = cachedImage
-            self.contentMode = mode
-            completion?()
-            tableView.reloadRows(at: [indexPath], with: .none)
+    func saveImage(name: String, image: UIImage) {
+        guard let data = image.jpegData(compressionQuality: 1) ?? image.pngData() else {
             return
         }
-
-        let imageUrlString = "https://rickandmortyapi.com/api/character/avatar/\(characterID).jpeg"
-
-        guard let url = URL(string: imageUrlString) else { return }
-
-        URLSession.shared.dataTask(with: url) { [weak self] data, _, _ in
-            guard let data = data, let downloadedImage = UIImage(data: data) else { return }
-
-            self?.saveImageToCoreData(characterID: characterID, image: downloadedImage)
-
+        guard let directory = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false) as NSURL else {
+            return
+        }
+        do {
+            try data.write(to: directory.appendingPathComponent(name)!)
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+    
+    func getSavedImage(named: String) -> UIImage? {
+        if let dir = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false) {
+            return UIImage(contentsOfFile: URL(fileURLWithPath: dir.absoluteString).appendingPathComponent(named).path)
+        }
+        
+        return nil
+    }
+    
+    func download(from url: NSURL, mode: ContentMode = .scaleAspectFit) {
+        let filename = url.relativePath?.split(separator: "/").last
+        contentMode = mode
+        
+        if let filename, let cachedImage = getSavedImage(named: String(filename)) {
             DispatchQueue.main.async {
-                self?.image = downloadedImage
-                self?.contentMode = mode
-                completion?()
-                tableView.reloadRows(at: [indexPath], with: .none)
+                self.image = cachedImage
+            }
+            return
+        }
+        URLSession.shared.dataTask(with: url as URL) { data, response, error in
+            guard let httpURLResponse = response as? HTTPURLResponse,
+                  httpURLResponse.statusCode == 200,
+                  let mimeType = response?.mimeType,
+                  mimeType.hasPrefix("image"),
+                  let data = data,
+                  let image = UIImage(data: data)
+            else { return }
+            if let filename {
+                DispatchQueue.main.async { [weak self] in
+                    self?.saveImage(name: String(filename), image: image)
+                    self?.image = image
+                }
             }
         }.resume()
     }
-
-    private func fetchImageFromCoreData(characterID: Int) -> UIImage? {
-        let fetchRequest: NSFetchRequest<CharacterCore> = CharacterCore.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "id == %d", characterID)
-
-        do {
-            let context = CoreDataStack.shared.context
-            let fetchedCharacters = try context.fetch(fetchRequest)
-            if let characterObject = fetchedCharacters.first, let imageData = characterObject.image {
-                if let data = Data(base64Encoded: imageData) {
-                    return UIImage(data: data)
-                } else {
-                    return nil
-                }
-            }
-        } catch {
-            print("Error fetching image from Core Data: \(error)")
-        }
-
-        return nil
-    }
-
-    private func saveImageToCoreData(characterID: Int, image: UIImage) {
-        if let imageDataString = image.pngData()?.base64EncodedString() {
-            let context = CoreDataStack.shared.context
-
-            if let entity = NSEntityDescription.entity(forEntityName: "CharacterCore", in: context) {
-                let characterObject = NSManagedObject(entity: entity, insertInto: context)
-                characterObject.setValue(characterID, forKey: "id")
-                characterObject.setValue(imageDataString, forKey: "image")
-
-                do {
-                    try context.save()
-                } catch {
-                    print("Error saving image to Core Data: \(error)")
-                }
-            }
-        }
+    
+    func download(from link: String, contentMode: ContentMode = .scaleAspectFit) {
+        guard let url = URL(string: link) else { return }
+        download(from: url as NSURL, mode: contentMode)
     }
 }

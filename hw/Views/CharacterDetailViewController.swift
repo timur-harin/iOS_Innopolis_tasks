@@ -76,8 +76,8 @@ class CharacterDetailViewController: UIViewController {
         let padding: CGFloat = 20.0
 
         view.addSubview(imageView)
-        imageView.load(characterID: character.id, mode: .scaleAspectFit, tableView: tableView, indexPath: IndexPath(row: 0, section: 0))
-
+        imageView.download(from: character.image, contentMode: .scaleAspectFit)
+        
         NSLayoutConstraint.activate([
             imageView.topAnchor.constraint(equalTo: view.topAnchor, constant: padding),
             imageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
